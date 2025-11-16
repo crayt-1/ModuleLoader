@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local PARALLEL_TAG = workspace:GetAttribute("ParallelTag") or "Parallel"
+local PARALLEL_TAG = workspace:GetAttribute("ParallelTag") or "parallel"
 local ENVIRONMENT = RunService:IsServer() and "Server" or "Client"
 
 local ModuleLoader = {}
@@ -11,7 +11,7 @@ ModuleLoader._onStart = nil :: (() -> any)?
 ModuleLoader._actorsFolder = nil :: Folder?
 
 function ModuleLoader._init(self: ModuleLoader, module: ModuleScript): ()
-	if module:HasTag(PARALLEL_TAG) then
+	if module.Name:match(`.{PARALLEL_TAG}`) then
 		local actor = Instance.new("Actor")
 		actor.Name = `{module.Name}Actor`
 		actor.Parent = self._actorsFolder
