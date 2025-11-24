@@ -7,8 +7,6 @@ local StarterGui = game:GetService("StarterGui")
 local PARALLEL_TAG = workspace:GetAttribute("ParallelTag") or "parallel"
 local ENVIRONMENT = RunService:IsServer() and "Server" or "Client"
 
-local playerGui = Players.LocalPlayer.PlayerGui
-
 local ModuleLoader = {}
 ModuleLoader._loadingModules = 0
 ModuleLoader._onStart = nil :: (() -> any)?
@@ -79,6 +77,7 @@ function ModuleLoader.init(self: ModuleLoader, modules: Instance): ()
 			gui.Parent = self._guiFolder
 		end
 	else
+		local playerGui = Players.LocalPlayer.PlayerGui
 		for _, gui in self._guiFolder:GetChildren() do
 			gui.Parent = playerGui
 		end
