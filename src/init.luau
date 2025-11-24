@@ -1,14 +1,19 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local StarterGui = game:GetService("StarterGui")
 
 local PARALLEL_TAG = workspace:GetAttribute("ParallelTag") or "parallel"
 local ENVIRONMENT = RunService:IsServer() and "Server" or "Client"
+
+local playerGui = Players.LocalPlayer.PlayerGui
 
 local ModuleLoader = {}
 ModuleLoader._loadingModules = 0
 ModuleLoader._onStart = nil :: (() -> any)?
 ModuleLoader._actorsFolder = nil :: Folder?
+ModuleLoader._guiFolder = nil :: Folder?
 
 function ModuleLoader._init(self: ModuleLoader, module: ModuleScript): ()
 	if module.Name:match(`.{PARALLEL_TAG}`) then
@@ -61,8 +66,22 @@ function ModuleLoader.init(self: ModuleLoader, modules: Instance): ()
 	self._actorsFolder.Name = "Actors"
 	self._actorsFolder.Parent = ENVIRONMENT == "Server" and ServerScriptService or ReplicatedStorage
 
+	self._guiFolder = ENVIRONMENT == "Client" and script:WaitForChild("Gui") or Instance.new("Folder")
+	self._guiFolder.Name = "Gui"
+	self._guiFolder.Parent = script
+
 	if ReplicatedStorage:FindFirstChild("Packages") and ReplicatedStorage.Packages:FindFirstChild("Network") then
 		require(ReplicatedStorage.Packages.Network)
+	end
+
+	if ENVIRONMENT == "Server" then
+		for _, gui in StarterGui:GetChildren() do
+			gui.Parent = self._guiFolder
+		end
+	else
+		for _, gui in self._guiFolder:GetChildren() do
+			gui.Parent = playerGui
+		end
 	end
 
 	self:_deepInit(modules)
