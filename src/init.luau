@@ -45,8 +45,8 @@ end
 
 function ModuleLoader._deepInit(self: ModuleLoader, modules: Instance): ()
 	for _, child in modules:GetChildren() do
-		if not child:IsA("ModuleScript") then
-			if child:IsA("Folder") then
+		if not child:IsA("ModuleScript") or child.Name == "UIController" then
+			if child:IsA("Folder") or child:IsA("ModuleScript") and child.Name == "UIController" then
 				self:_deepInit(child)
 				continue
 			else
