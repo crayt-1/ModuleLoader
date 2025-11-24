@@ -32,11 +32,11 @@ function ModuleLoader._init(self: ModuleLoader, module: ModuleScript): ()
 	local hasInit = isTable and loadedModule.init and typeof(loadedModule.init) == "function"
 
 	if hasInit then
-		ModuleLoader._loadingModules += 1
+		self._loadingModules += 1
 		--local startTime = os.clock()
 		loadedModule:init()
 		--local endTime = os.clock()
-		ModuleLoader._loadingModules -= 1
+		self._loadingModules -= 1
 		--print(module, `initialized! took: {endTime - startTime}s`)
 	end
 end
@@ -45,13 +45,16 @@ function ModuleLoader._deepInit(self: ModuleLoader, modules: Instance): ()
 	for _, child in modules:GetChildren() do
 		if not child:IsA("ModuleScript") or child.Name == "UIController" then
 			if child:IsA("Folder") or child:IsA("ModuleScript") and child.Name == "UIController" then
+				if child.Name == "UIController" then
+					task.spawn(self._init, self, child)
+				end
 				self:_deepInit(child)
 				continue
 			else
 				continue
 			end
 		end
-		task.spawn(ModuleLoader._init, self, child)
+		task.spawn(self._init, self, child)
 	end
 end
 
